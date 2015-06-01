@@ -63,10 +63,17 @@ module Rack
       #
       def allowed?(request)
         if ( request.cookies.has_key?(consent_token.to_s) ||
-             parse_cookies.has_key?(consent_token.to_s) )
+             parse_cookies.has_key?(consent_token.to_s) || site_cookies_allowed?(request) )
           true
         else
           false
+        end
+      end
+
+      def site_cookies_allowed?(request)
+        allowed_cookies = Rails.application.config.rack_policy_allowed
+        allowed_cookies.any? do |cookie|
+          request.cookies.has_key?(cookie.to_s) || parse_cookies.has_key?(cookie.to_s)
         end
       end
 
